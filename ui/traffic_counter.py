@@ -54,11 +54,11 @@ def get_crowd_status(count_per_min: int, limit: int):
     """Return (label, color) based on traffic vs road capacity."""
     diff = count_per_min - limit
     if diff <= 0:
-        return "✅  NO CROWD", C_GREEN
+        return "NO CROWD", C_GREEN
     elif diff <= 10:
-        return "⚠   SLIGHTLY CROWDED", C_YELLOW
+        return "SLIGHTLY CROWDED", C_YELLOW
     else:
-        return "🚨  MORE CROWDED", C_RED
+        return "MORE CROWDED", C_RED
 
 
 def ask_capacity() -> int:
@@ -178,9 +178,27 @@ def main():
 
         put_text_shadow(frame, "COUNTING LINE", (10, line_y - 10), FONT, 0.5, C_GREEN, 1)
 
-        # ── HUD Panel (top-left) ───────────────────────
-        panel_x1, panel_y1 = 10,  10
-        panel_x2, panel_y2 = 360, 210
+        # ── Status banner (TOP strip) ──────────────────
+        bx1, by1 = 10, 10
+        bx2, by2 = W - 10, 72
+        draw_filled_rounded_rect(frame, bx1, by1, bx2, by2, C_PANEL, 0.72)
+        draw_border_rect(frame, bx1, by1, bx2, by2, status_color, 3)
+
+        # Centre the status label
+        (tw, th), _ = cv2.getTextSize(status_label, FONT_BOLD, 0.85, 2)
+        tx = (W - tw) // 2
+        ty = by1 + (by2 - by1 + th) // 2
+        put_text_shadow(frame, status_label, (tx, ty), FONT_BOLD, 0.85, status_color, 2)
+
+        # diff annotation (right side of banner)
+        diff_txt = f"({per_min} vs {road_limit} limit)"
+        (dw, _), _ = cv2.getTextSize(diff_txt, FONT, 0.42, 1)
+        cv2.putText(frame, diff_txt, (W - dw - 16, by2 - 12),
+                    FONT, 0.42, C_WHITE, 1, cv2.LINE_AA)
+
+        # ── HUD Panel (top-left, below status banner) ──
+        panel_x1, panel_y1 = 10,  82
+        panel_x2, panel_y2 = 360, 282
 
         draw_filled_rounded_rect(frame, panel_x1, panel_y1, panel_x2, panel_y2,
                                  C_PANEL, alpha=0.65)
@@ -193,32 +211,14 @@ def main():
 
         # Stats
         rows = [
-            (f"TOTAL CROSSED  : {total}",   C_WHITE,  56),
-            (f"LAST 60 s      : {per_min} veh/min", C_YELLOW, 86),
-            (f"ROAD LIMIT     : {road_limit} veh/min",  C_WHITE,  116),
-            (f"FPS            : {fps_display:.1f}",     C_GREEN,  146),
+            (f"TOTAL CROSSED  : {total}",              C_WHITE,  56),
+            (f"LAST 60 s      : {per_min} veh/min",    C_YELLOW, 86),
+            (f"ROAD LIMIT     : {road_limit} veh/min", C_WHITE,  116),
+            (f"FPS            : {fps_display:.1f}",    C_GREEN,  146),
         ]
         for text, color, dy in rows:
             put_text_shadow(frame, text, (panel_x1+12, panel_y1+dy),
                             FONT, 0.52, color, 1)
-
-        # ── Status banner (bottom strip) ──────────────
-        bx1, by1 = 10, H - 70
-        bx2, by2 = W - 10, H - 10
-        draw_filled_rounded_rect(frame, bx1, by1, bx2, by2, C_PANEL, 0.72)
-        draw_border_rect(frame, bx1, by1, bx2, by2, status_color, 3)
-
-        # Centre the status text
-        (tw, th), _ = cv2.getTextSize(status_label, FONT_BOLD, 0.85, 2)
-        tx = (W - tw) // 2
-        ty = by1 + (by2 - by1 + th) // 2
-        put_text_shadow(frame, status_label, (tx, ty), FONT_BOLD, 0.85, status_color, 2)
-
-        # diff annotation
-        diff_txt = f"({per_min} vs {road_limit} limit)"
-        (dw, _), _ = cv2.getTextSize(diff_txt, FONT, 0.4, 1)
-        cv2.putText(frame, diff_txt, (W - dw - 20, by1 + 22),
-                    FONT, 0.40, C_WHITE, 1, cv2.LINE_AA)
 
         # ── Write & display ────────────────────────────
         writer.write(frame)
