@@ -179,7 +179,7 @@ python main.py --mode train
 | Image Size    | 640 × 640                     |
 | Optimizer     | MuSGD (YOLO26 built-in)       |
 | Precision     | Mixed FP16                    |
-| Hardware      | NVIDIA T4 (Google Colab)      |
+| Hardware      | NVIDIA 4060                   |
 
 > **Why VisDrone?** It contains 10,000+ drone-captured images of dense urban traffic, making it the ideal dataset for aerial/road vehicle detection.
 
