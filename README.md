@@ -14,7 +14,6 @@
 </p>
 
 ---
-<p>My Role: Worked on detecting vehicles and counting how many cross the line, and helped display the results on the video.</p>
 
 ## 🎯 What is Traffic Analyser?
 
